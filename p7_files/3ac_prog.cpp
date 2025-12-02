@@ -7,6 +7,7 @@ namespace leviathan {
 IRProgram::IRProgram(TypeAnalysis * taIn) : ta(taIn){
 	procs = new std::list<Procedure *>();
 	init = new Procedure(this, "<init>");
+	procs->push_back(init);
 	TypeList * argsType = 
 		TypeList::produce(new std::list<const DataType *>());
 	auto t = FnType::produce(argsType, BasicType::BOOL());

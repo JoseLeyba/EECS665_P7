@@ -170,6 +170,11 @@ public:
 		else { return new LitOpd("0", 1); }
 	}
 
+	//Set a string label to get it later
+	void setLabel(const std::string &lab){ 
+		label = lab; 
+	}
+
 	virtual std::string valString() override{
 		return val;
 	}
@@ -180,9 +185,13 @@ public:
 	virtual void genStoreVal(std::ostream& out, Register reg) override{
 		throw new InternalError("Cannot change value of a literal");
 	}
+	//CHANGED, We shooould be able to take addresses of literal strings, so allow it if label
 	virtual void genLoadAddr(std::ostream& out, Register reg) override{
-		throw new InternalError("Cannot get addr of a literal");
-	}
+        if (label.empty()){
+            throw new InternalError("Tried to take address of unlabeled literal");
+        }
+        out << "leaq " << label << "(%rip), " << getReg(reg) << "\n";
+    }
 	virtual void genStoreAddr(std::ostream& out, Register reg) override{
 		throw new InternalError("Cannot set the addr of a literal");
 	}
@@ -192,6 +201,7 @@ public:
 	}
 private:
 	std::string val;
+	std::string label;
 };
 
 class AuxOpd : public Opd{

@@ -5,11 +5,28 @@ namespace leviathan{
 
 void IRProgram::allocGlobals(){
 	//Choose a label for each global
-	TODO(Implement me)
+	//NO GLOBALS RN (but main)
+	// TODO(Implement me)
 }
 
 void IRProgram::datagenX64(std::ostream& out){
-	TODO(Write out data section)
+	out << ".data\n";
+	out << ".globl main\n";
+	// FOr the strings
+    int strIdx = 0;
+    for (auto &entry : this->strings){
+        LitOpd *opd = entry.first;
+        std::string s = entry.second;
+
+		//Before I got double quotes so It gave me errors so I needed to strip one set of quotes
+		if (!s.empty() && s.front() == '"' && s.back() == '"' && s.size() >= 2){
+            s = s.substr(1, s.size() - 2);
+        }
+        std::string label = ".L_str_" + std::to_string(strIdx++);
+		opd->setLabel(label);
+		out << label << ":\n";
+		out << "    .asciz \"" << s << "\"\n";
+	}
 	//Put this directive after you write out strings
 	// so that everything is aligned to a quadword value
 	// again
@@ -21,13 +38,16 @@ void IRProgram::toX64(std::ostream& out){
 	allocGlobals();
 	datagenX64(out);
 	// Iterate over each procedure and codegen it
-	TODO(Implement me)
+	out << ".text\n";
+    for (auto proc : *procs){
+        proc->toX64(out);
+    }
 }
 
 void Procedure::allocLocals(){
 	//Allocate space for locals
 	// Iterate over each procedure and codegen it
-	TODO(Implement me)
+	//TODO(Implement me)
 }
 
 void Procedure::toX64(std::ostream& out){
@@ -81,8 +101,23 @@ void ReadQuad::codegenX64(std::ostream& out){
 	TODO(Implement me)
 }
 
+//FIRST THING WE NEED TO GET WORKING!
 void WriteQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	if (BasicType::INT() == mySrcType){
+        mySrc->genLoadVal(out, DI);
+        out << "callq printInt\n";
+
+    } else if (BasicType::BOOL() == mySrcType){
+        mySrc->genLoadVal(out, DI);
+        out << "callq printBool\n";
+
+    } else if (BasicType::STRING() == mySrcType){
+        mySrc->genLoadAddr(out, DI);
+        out << "callq printString\n";
+
+    } else {
+        out << "# WriteQuad: unsupported type\n";
+    }
 }
 
 void GotoQuad::codegenX64(std::ostream& out){
@@ -102,11 +137,14 @@ void CallQuad::codegenX64(std::ostream& out){
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	out << "pushq %rbp\n";
+	out << "movq %rsp, %rbp\n";
 }
 
 void LeaveQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	//NOT RIGHT, MOMENTARY TO GET BASIC PRINTING WORKING WITH LITERALS/GLOBALS
+	 out << "leave\n";
+	 out << "ret\n";
 }
 
 void SetArgQuad::codegenX64(std::ostream& out){
@@ -172,5 +210,6 @@ void AddrOpd::genLoadAddr(std::ostream & out, Register reg){
 void LitOpd::genLoadVal(std::ostream & out, Register reg){
 	out << getMovOp() << " $" << val << ", " << getReg(reg) << "\n";
 }
+
 
 }

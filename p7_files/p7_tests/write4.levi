@@ -1,5 +1,5 @@
 main : () int {
-	a:int;
-	a = 4;
-	out << a;
+	out << 4;
+	out << true;
+	out << "hello";
 }
