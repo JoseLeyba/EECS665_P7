@@ -1,0 +1,13 @@
+g1 : int;
+g2 : bool;
+
+main : () int {
+    out << g1;
+    g1 = 7;
+    out << g1;
+
+    out << g2;
+    g2 = true;
+    out << g2;
+
+}

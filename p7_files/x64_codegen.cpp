@@ -32,6 +32,12 @@ void IRProgram::datagenX64(std::ostream& out){
 
 	//For the globals
 	for (auto &entry : globals){
+		//We use the symbol to skip over functions
+		const SemSymbol *sym = entry.first;
+		const DataType *dt = sym->getDataType();
+		if (dt->asFn() != nullptr){
+			continue;
+		}
 		SymOpd *opd = entry.second;
 		const std::string &lab = opd->getLabel();
 		out << lab << ":\n";
