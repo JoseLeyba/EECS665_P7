@@ -4,9 +4,11 @@
 namespace leviathan{
 
 void IRProgram::allocGlobals(){
-	//Choose a label for each global
-	//NO GLOBALS RN (but main)
-	// TODO(Implement me)
+	for (auto &entry : globals){
+        SymOpd *opd = entry.second;
+        // We already had a mapping of all our globals so we just need to use their name as lables
+        opd->setLabel(opd->getName());
+    }
 }
 
 void IRProgram::datagenX64(std::ostream& out){
@@ -27,6 +29,20 @@ void IRProgram::datagenX64(std::ostream& out){
 		out << label << ":\n";
 		out << "    .asciz \"" << s << "\"\n";
 	}
+
+	//For the globals
+	for (auto &entry : globals){
+		SymOpd *opd = entry.second;
+		const std::string &lab = opd->getLabel();
+		out << lab << ":\n";
+		//All our opd SHOULD BE of 8 if the professor implemented this same as we did, might need to double check that
+		if (opd->getWidth() == 8){
+			out << "    .quad 0\n";
+		} else {
+			out << "    .byte 0\n";  
+		}
+	}
+
 	//Put this directive after you write out strings
 	// so that everything is aligned to a quadword value
 	// again
@@ -168,15 +184,25 @@ void LocQuad::codegenX64(std::ostream& out){
 }
 
 void SymOpd::genLoadVal(std::ostream& out, Register reg){
-	TODO(Implement me)
+	//Globals are the only ones with labels
+	if (!label.empty()){
+        out << getMovOp() << " " << label << "(%rip), " << getReg(reg) << "\n";
+    } 
 }
 
 void SymOpd::genStoreVal(std::ostream& out, Register reg){
-	TODO(Implement me)
+	//Globals are the only ones with labels
+	if (!label.empty()){
+        out << getMovOp() << " " << getReg(reg) << ", " << label << "(%rip)\n";
+    }
 }
 
 void SymOpd::genLoadAddr(std::ostream& out, Register reg) {
-	TODO(Implement me if necessary)
+	//Globals are the only ones with labels
+	if (!label.empty()){
+    out << "leaq " << label << "(%rip), " << getReg(reg) << "\n";
+	}
+    
 }
 
 void AuxOpd::genLoadVal(std::ostream& out, Register reg){

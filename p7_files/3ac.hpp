@@ -128,6 +128,9 @@ public:
 		return mySym->getName();
 	}
 	const SemSymbol * getSym(){ return mySym; }
+	//Labels for Globals (Might be good to store the offset for locals here later)
+	void setLabel(const std::string &lab){ label = lab; }
+    const std::string & getLabel() const { return label; }
 	virtual void genLoadVal(std::ostream& out, Register reg) override;
 	virtual void genStoreVal(std::ostream& out, Register reg) override;
 	virtual void genLoadAddr(std::ostream& out, Register reg) override;
@@ -145,6 +148,7 @@ private:
 	SymOpd(SemSymbol * sym, size_t width)
 	: Opd(width), mySym(sym) {}
 	SemSymbol * mySym;
+	std::string label;
 	friend class Procedure;
 	friend class IRProgram;
 	std::string myLoc;
