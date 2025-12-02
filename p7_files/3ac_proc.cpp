@@ -4,7 +4,7 @@
 namespace leviathan{
 
 Procedure::Procedure(IRProgram * prog, std::string name)
-: myProg(prog), myName(name){
+: myProg(prog), myName(name), frameSize(0){
 	maxTmp = 0;
 	enter = new EnterQuad(this);
 	leave = new LeaveQuad(this);

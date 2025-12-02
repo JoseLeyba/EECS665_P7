@@ -69,7 +69,43 @@ void IRProgram::toX64(std::ostream& out){
 void Procedure::allocLocals(){
 	//Allocate space for locals
 	// Iterate over each procedure and codegen it
-	//TODO(Implement me)
+
+	size_t offset = 0;
+
+	// allocate locals
+	for (auto &entry : locals){
+		SymOpd *opd = entry.second;
+		size_t w = opd->getWidth();
+		offset += w;
+		opd->setMemoryLoc("-" + std::to_string(offset) + "(%rbp)");
+	}
+
+	// allocate temps
+	for (AuxOpd *tmp : temps){
+		size_t w = tmp->getWidth();
+		offset += w;
+		tmp->setMemoryLoc("-" + std::to_string(offset) + "(%rbp)");
+	}
+
+	// allocate formals
+	for (SymOpd *formal : formals){
+		size_t w = formal->getWidth();
+		offset += w;
+		formal->setMemoryLoc("-" + std::to_string(offset) + "(%rbp)");
+	}
+
+	// allocate addrOpds (for arrays and such..do we need this?)
+	for (AddrOpd *addr : addrOpds){
+		size_t w = addr->getWidth();
+		offset += w;
+		addr->setMemoryLoc("-" + std::to_string(offset) + "(%rbp)");
+	}
+
+	// 16 byte align stack
+	size_t slack = (16 - (offset % 16)) % 16;
+	offset += slack;
+
+	setFrameSize(offset);
 }
 
 void Procedure::toX64(std::ostream& out){
@@ -161,6 +197,12 @@ void CallQuad::codegenX64(std::ostream& out){
 void EnterQuad::codegenX64(std::ostream& out){
 	out << "pushq %rbp\n";
 	out << "movq %rsp, %rbp\n";
+
+	size_t sz = myProc->getFrameSize();
+	if (sz > 0){
+		out << "subq $" << sz << ", %rsp\n";
+	}
+
 }
 
 void LeaveQuad::codegenX64(std::ostream& out){
@@ -193,14 +235,18 @@ void SymOpd::genLoadVal(std::ostream& out, Register reg){
 	//Globals are the only ones with labels
 	if (!label.empty()){
         out << getMovOp() << " " << label << "(%rip), " << getReg(reg) << "\n";
-    } 
+    } else {
+		out << getMovOp() << " " << getMemoryLoc() << ", " << getReg(reg) << "\n";
+	}
 }
 
 void SymOpd::genStoreVal(std::ostream& out, Register reg){
 	//Globals are the only ones with labels
 	if (!label.empty()){
         out << getMovOp() << " " << getReg(reg) << ", " << label << "(%rip)\n";
-    }
+    } else {
+		out << getMovOp() << " " << getReg(reg) << ", " << getMemoryLoc() << "\n";
+	}
 }
 
 void SymOpd::genLoadAddr(std::ostream& out, Register reg) {

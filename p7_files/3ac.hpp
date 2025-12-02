@@ -518,6 +518,8 @@ public:
 	EnterQuad * getEnter(){ return enter; }
 	LeaveQuad * getLeave(){ return leave; }
 	void replaceQuad(Quad * oldQuad, Quad * newQuad);
+	void setFrameSize(size_t sz) { frameSize = sz; };
+	size_t getFrameSize() const { return frameSize; };
 private:
 	void allocLocals();
 
@@ -533,6 +535,7 @@ private:
 	std::list<Quad *> * bodyQuads;
 	std::string myName;
 	size_t maxTmp;
+	size_t frameSize;
 };
 
 class IRProgram{
