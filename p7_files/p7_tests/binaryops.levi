@@ -1,0 +1,12 @@
+main : () int {
+    x : int;
+    y : int;
+    z : int;
+
+    x = 2;
+    y = 3;
+    z = x + y * 4;
+    out << z;
+
+    return 0;
+}

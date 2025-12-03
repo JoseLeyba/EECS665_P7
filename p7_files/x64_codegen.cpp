@@ -143,7 +143,38 @@ void Quad::codegenLabels(std::ostream& out){
 }
 
 void BinOpQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	//Load our lhs into %rax (A)
+	src1->genLoadVal(out, A);
+
+	//Depending on the Operation we are doing
+	switch (opr){
+
+		//We will sum (or whatever operation is) it whatever is on our rhs
+		case BinOp::ADD64:
+			src2->genLoadVal(out, B);
+			out << "addq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+
+		case BinOp::SUB64:
+			src2->genLoadVal(out, B);
+			out << "subq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+
+		case BinOp::DIV64:
+			src2->genLoadVal(out, B);
+			out << "idivq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+
+		case BinOp::MULT64:
+			src2->genLoadVal(out, B);
+			out << "imulq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+		//FINISH THIS (This is to myself not for u teammate)!!!
+		default:
+			break;
+
+	}
+	dst->genStoreVal(out, A);
 }
 
 void UnaryOpQuad::codegenX64(std::ostream& out){
@@ -206,7 +237,6 @@ void EnterQuad::codegenX64(std::ostream& out){
 }
 
 void LeaveQuad::codegenX64(std::ostream& out){
-	//NOT RIGHT, MOMENTARY TO GET BASIC PRINTING WORKING WITH LITERALS/GLOBALS
 	 out << "leave\n";
 	 out << "ret\n";
 }
@@ -258,14 +288,14 @@ void SymOpd::genLoadAddr(std::ostream& out, Register reg) {
 }
 
 void AuxOpd::genLoadVal(std::ostream& out, Register reg){
-	TODO(Implement me)
+	out << getMovOp() << " " << getMemoryLoc() << ", " << getReg(reg) << "\n";
 }
 
 void AuxOpd::genStoreVal(std::ostream& out, Register reg){
-	TODO(Implement me)
+	out << getMovOp() << " " << getReg(reg) << ", " << getMemoryLoc() << "\n";
 }
 void AuxOpd::genLoadAddr(std::ostream& out, Register reg){
-	TODO(Implement me)
+	out << "leaq " << getMemoryLoc() << ", " << getReg(reg) << "\n";
 }
 
 
