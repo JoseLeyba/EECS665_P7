@@ -250,7 +250,7 @@ void GetArgQuad::codegenX64(std::ostream& out){
 }
 
 void SetRetQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	opd->genLoadVal(out, A);
 }
 
 void GetRetQuad::codegenX64(std::ostream& out){
