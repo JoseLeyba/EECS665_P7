@@ -151,25 +151,43 @@ void BinOpQuad::codegenX64(std::ostream& out){
 
 		//We will sum (or whatever operation is) it whatever is on our rhs
 		case BinOp::ADD64:
+		//We need both cases (or a default which wouldn't work) for the compiler to run
+		case BinOp::ADD8:
 			src2->genLoadVal(out, B);
 			out << "addq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
 			break;
 
 		case BinOp::SUB64:
+		case BinOp::SUB8:
 			src2->genLoadVal(out, B);
 			out << "subq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
 			break;
 
 		case BinOp::DIV64:
+		case BinOp::DIV8:
 			src2->genLoadVal(out, B);
-			out << "idivq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			// NOT how div works in x64 out << "idivq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//Sign extend into rdx and the quotient then goes into rax when doing the div (for some reason)
+			out << "cqto\n";
+			out << "idivq " << RegUtils::reg64(B) << "\n";
 			break;
 
 		case BinOp::MULT64:
+		case BinOp::MULT8:
 			src2->genLoadVal(out, B);
 			out << "imulq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
 			break;
-		//FINISH THIS (This is to myself not for u teammate)!!!
+
+		case BinOp::EQ64:
+		case BinOp::EQ8:
+			src2->genLoadVal(out, B);
+			out << "cmpq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//BOOLEAN, so needs to be 8-bit
+			out << "sete " << RegUtils::reg8(A) << "\n";
+			//This zero extends the 8-bit to 64-bit
+			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+		//We need to finish this!!! There's no default case normally so this should be deleted by the end
 		default:
 			break;
 
