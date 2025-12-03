@@ -187,6 +187,69 @@ void BinOpQuad::codegenX64(std::ostream& out){
 			//This zero extends the 8-bit to 64-bit
 			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
 			break;
+
+		case BinOp::NEQ64:
+		case BinOp::NEQ8:
+			src2->genLoadVal(out, B);
+			out << "cmpq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//BOOLEAN, so needs to be 8-bit
+			out << "setne " << RegUtils::reg8(A) << "\n";
+			//This zero extends the 8-bit to 64-bit
+			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+		
+		case BinOp::LT64:
+		case BinOp::LT8:
+			src2->genLoadVal(out, B);
+			out << "cmpq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//BOOLEAN, so needs to be 8-bit
+			out << "setl " << RegUtils::reg8(A) << "\n";
+			//This zero extends the 8-bit to 64-bit
+			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+
+		case BinOp::GT64:
+		case BinOp::GT8:
+			src2->genLoadVal(out, B);
+			out << "cmpq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//BOOLEAN, so needs to be 8-bit
+			out << "setg " << RegUtils::reg8(A) << "\n";
+			//This zero extends the 8-bit to 64-bit
+			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+
+		case BinOp::LTE64:
+		case BinOp::LTE8:
+			src2->genLoadVal(out, B);
+			out << "cmpq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//BOOLEAN, so needs to be 8-bit
+			out << "setle " << RegUtils::reg8(A) << "\n";
+			//This zero extends the 8-bit to 64-bit
+			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+			
+		case BinOp::GTE64:
+		case BinOp::GTE8:
+			src2->genLoadVal(out, B);
+			out << "cmpq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+			//BOOLEAN, so needs to be 8-bit
+			out << "setge " << RegUtils::reg8(A) << "\n";
+			//This zero extends the 8-bit to 64-bit
+			out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+			break;
+		
+		case BinOp::OR64:
+		case BinOp::OR8:
+    		src2->genLoadVal(out, B);
+    		out << "orq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+    		break;
+		
+		case BinOp::AND64:
+		case BinOp::AND8:
+    		src2->genLoadVal(out, B);
+    		out << "andq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
+    		break;
+		
 		//We need to finish this!!! There's no default case normally so this should be deleted by the end
 		default:
 			break;

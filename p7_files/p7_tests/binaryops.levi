@@ -2,11 +2,36 @@ main : () int {
     x : int;
     y : int;
     z : int;
+    b : bool;
 
     x = 2;
     y = 3;
     z = x + y * 4;
     out << z;
+
+    b = (x == y);
+    out << b;
+
+    b = x != y;
+    out << b;
+
+    b = x < y;
+    out << b;
+
+    b = x <= y;
+    out << b;
+
+    b = x > y;
+    out << b;
+
+    b = x >= y;
+    out << b;
+
+    b = true or false;
+    out << b;
+
+    b = false and false;
+    out << b;
 
     return 0;
 }
