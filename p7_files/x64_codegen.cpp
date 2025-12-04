@@ -249,17 +249,33 @@ void BinOpQuad::codegenX64(std::ostream& out){
     		src2->genLoadVal(out, B);
     		out << "andq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
     		break;
-		
-		//We need to finish this!!! There's no default case normally so this should be deleted by the end
-		default:
-			break;
+		//No Default Case :D
+
 
 	}
 	dst->genStoreVal(out, A);
 }
 
 void UnaryOpQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	//(Similar to the BinaryOp)
+	src->genLoadVal(out, A);
+
+	switch (op){
+
+		case UnaryOp::NEG64:
+		case UnaryOp::NEG8:
+			out << "negq " << RegUtils::reg64(A) << "\n";
+			break;
+
+		case UnaryOp::NOT64:
+		case UnaryOp::NOT8:
+			out << "cmpq $0, " << RegUtils::reg64(A) << "\n";
+            out << "sete " << RegUtils::reg8(A) << "\n";
+            out << "movzbq " << RegUtils::reg8(A) << ", " << RegUtils::reg64(A) << "\n";
+            break;
+	}
+
+	dst->genStoreVal(out, A);
 }
 
 void AssignQuad::codegenX64(std::ostream& out){
@@ -327,7 +343,32 @@ void SetArgQuad::codegenX64(std::ostream& out){
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	Register r;
+	switch (index){
+		case 1: 
+			r = DI;
+			opd->genStoreVal(out, r);
+			break;
+		case 2:
+			r = SI;
+			opd->genStoreVal(out, r);
+			break;
+		case 3:
+			r = D;
+			opd->genStoreVal(out, r);
+			break;
+		case 4: 
+			r = C;
+			opd->genStoreVal(out, r);
+			break;
+		
+		//Anything after 6 goes in the stack (positive offset with how we working on it)
+		default:
+			long offset = 16 + 8 * static_cast<long>(index - 1);
+			out << "movq " << offset << "(%rbp), " << RegUtils::reg64(A) << "\n";
+			opd->genStoreVal(out, A);
+	}
+	
 }
 
 void SetRetQuad::codegenX64(std::ostream& out){
