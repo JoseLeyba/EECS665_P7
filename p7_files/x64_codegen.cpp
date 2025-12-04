@@ -249,7 +249,7 @@ void BinOpQuad::codegenX64(std::ostream& out){
     		src2->genLoadVal(out, B);
     		out << "andq " << RegUtils::reg64(B) << ", " << RegUtils::reg64(A) << "\n";
     		break;
-		//No Default Case :D
+		//No Default Case :D :3
 
 
 	}
@@ -311,7 +311,9 @@ void GotoQuad::codegenX64(std::ostream& out){
 }
 
 void IfzQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	cnd->genLoadVal(out, A);
+	out << "cmpq $0, " << RegUtils::reg64(A) << "\n";
+	out << "je " << tgt->getName() << "\n";
 }
 
 void NopQuad::codegenX64(std::ostream& out){

@@ -1,0 +1,27 @@
+main : (a:int, b:int, c:int) int {
+    a = 1;
+    b = 2;
+    c = 3;
+    if (a < b){
+        out << a;
+    } else {
+        out << b;
+    }
+
+    d:bool = true;
+    while (d) {
+        a = 5;
+        d = false;
+    }
+
+    out << a;
+
+    d = true or false;
+    if (d) {
+        a = 4;
+    }
+
+    out << a;
+
+    out << c;
+}
