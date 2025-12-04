@@ -321,7 +321,16 @@ void NopQuad::codegenX64(std::ostream& out){
 }
 
 void CallQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	out << "callq fun_" << sym->getName() << "\n";
+
+	// int paramCount = sym->getParamCount();
+	// int numStackArgs = (paramCount > 6) ? paramCount - 6 : 0;
+
+	// if (numStackArgs > 0){
+	// 	long bytes = 8L * numStackArgs;
+	// 	out << "addq $" << bytes << ", %rsp\n";
+	// }
+
 }
 
 void EnterQuad::codegenX64(std::ostream& out){
@@ -341,7 +350,35 @@ void LeaveQuad::codegenX64(std::ostream& out){
 }
 
 void SetArgQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	TODO(Implement me);
+
+
+	// opd->genLoadVal(out, A);
+
+	// switch (index) {
+	// 	case 1:
+    //         out << "movq " << RegUtils::reg64(A) << ", %rdi\n";
+    //         break;
+	// 	case 2:
+    //         out << "movq " << RegUtils::reg64(A) << ", %rsi\n";
+    //         break;
+	// 	case 3:
+    //         out << "movq " << RegUtils::reg64(A) << ", %rdx\n";
+    //         break;
+	// 	case 4:
+    //         out << "movq " << RegUtils::reg64(A) << ", %rcx\n";
+    //         break;
+	// 	case 5:
+    //         out << "movq " << RegUtils::reg64(A) << ", %r8\n";
+    //         break;
+	// 	case 6:
+    //         out << "movq " << RegUtils::reg64(A) << ", %r9\n";
+    //         break;
+
+	// 	default:
+	// 		out << "pushq " << RegUtils::reg64(A) << "\n";
+	// 		break;
+	// }
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
@@ -378,7 +415,7 @@ void SetRetQuad::codegenX64(std::ostream& out){
 }
 
 void GetRetQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	opd->genStoreVal(out, A);
 }
 
 void LocQuad::codegenX64(std::ostream& out){

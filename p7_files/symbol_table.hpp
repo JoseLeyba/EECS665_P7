@@ -49,6 +49,7 @@ public:
 	void sink(){ this->sunk = true; }
 	virtual void surface(){ this->sunk = false; }
 	bool isSunk(){ return this->sunk; }
+	virtual int getParamCount() const { return 0; }
 protected:
 	std::string myName;
 	const DataType * myType;
@@ -68,6 +69,14 @@ public:
 	: SemSymbol(name, fnType){ }
 	virtual SymbolKind getKind() const { return FN; }
 	SymbolKind getKind(){ return FN; }
+	virtual int getParamCount() const override {
+		const FnType *fnType = dynamic_cast<const FnType*>(myType);
+		if (!fnType) return 0;
+
+		const TypeList *formals = fnType->getFormalTypes();
+		if (!formals) return 0;
+		return formals->getSize();
+	}
 };
 
 class SinkSymbol : public SemSymbol{
