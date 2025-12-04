@@ -323,13 +323,13 @@ void NopQuad::codegenX64(std::ostream& out){
 void CallQuad::codegenX64(std::ostream& out){
 	out << "callq fun_" << sym->getName() << "\n";
 
-	// int paramCount = sym->getParamCount();
-	// int numStackArgs = (paramCount > 6) ? paramCount - 6 : 0;
+	int paramCount = sym->getParamCount();
+	int numStackArgs = (paramCount > 6) ? paramCount - 6 : 0;
 
-	// if (numStackArgs > 0){
-	// 	long bytes = 8L * numStackArgs;
-	// 	out << "addq $" << bytes << ", %rsp\n";
-	// }
+	if (numStackArgs > 0){
+	 	long bytes = 8L * numStackArgs;
+	 	out << "addq $" << bytes << ", %rsp\n";
+	}
 
 }
 
@@ -350,35 +350,33 @@ void LeaveQuad::codegenX64(std::ostream& out){
 }
 
 void SetArgQuad::codegenX64(std::ostream& out){
-	TODO(Implement me);
 
+	 opd->genLoadVal(out, A);
 
-	// opd->genLoadVal(out, A);
+	 switch (index) {
+	 	case 1:
+             out << "movq " << RegUtils::reg64(A) << ", %rdi\n";
+             break;
+	 	case 2:
+             out << "movq " << RegUtils::reg64(A) << ", %rsi\n";
+             break;
+	 	case 3:
+             out << "movq " << RegUtils::reg64(A) << ", %rdx\n";
+             break;
+	 	case 4:
+             out << "movq " << RegUtils::reg64(A) << ", %rcx\n";
+             break;
+	 	case 5:
+             out << "movq " << RegUtils::reg64(A) << ", %r8\n";
+             break;
+	 	case 6:
+             out << "movq " << RegUtils::reg64(A) << ", %r9\n";
+             break;
 
-	// switch (index) {
-	// 	case 1:
-    //         out << "movq " << RegUtils::reg64(A) << ", %rdi\n";
-    //         break;
-	// 	case 2:
-    //         out << "movq " << RegUtils::reg64(A) << ", %rsi\n";
-    //         break;
-	// 	case 3:
-    //         out << "movq " << RegUtils::reg64(A) << ", %rdx\n";
-    //         break;
-	// 	case 4:
-    //         out << "movq " << RegUtils::reg64(A) << ", %rcx\n";
-    //         break;
-	// 	case 5:
-    //         out << "movq " << RegUtils::reg64(A) << ", %r8\n";
-    //         break;
-	// 	case 6:
-    //         out << "movq " << RegUtils::reg64(A) << ", %r9\n";
-    //         break;
-
-	// 	default:
-	// 		out << "pushq " << RegUtils::reg64(A) << "\n";
-	// 		break;
-	// }
+	 	default:
+	 		out << "pushq " << RegUtils::reg64(A) << "\n";
+	 		break;
+		}
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
@@ -400,12 +398,22 @@ void GetArgQuad::codegenX64(std::ostream& out){
 			r = C;
 			opd->genStoreVal(out, r);
 			break;
+		case 5:
+		//We don't have the registers r08 and r09 in our Register class so I'm doing it manually to comply with System V ABI
+			out << "movq %r8, " << RegUtils::reg64(A) << "\n";
+			opd->genStoreVal(out, A);
+			break;
+		case 6: 
+			out << "movq %r9, " << RegUtils::reg64(A) << "\n";
+			opd->genStoreVal(out, A);
+			break;
 		
 		//Anything after 6 goes in the stack (positive offset with how we working on it)
 		default:
-			long offset = 16 + 8 * static_cast<long>(index - 1);
+			long offset = 16 + 8 * static_cast<long>(index - 7);
 			out << "movq " << offset << "(%rbp), " << RegUtils::reg64(A) << "\n";
 			opd->genStoreVal(out, A);
+			break;
 	}
 	
 }

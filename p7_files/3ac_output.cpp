@@ -93,11 +93,14 @@ static void argsTo3AC(Procedure * proc, std::list<ExpNode *> * args){
 		const DataType * argType = proc->getProg()->nodeType(argNode);
 		argOpds.push_back(std::make_pair(argOpd, argType));
 	}
-	size_t argIdx = 1;
-	for (auto argOpd : argOpds){
-		Quad * argQuad = new SetArgQuad(argIdx, argOpd.first, argOpd.second);
-		proc->addQuad(argQuad);
-		argIdx++;
+	//We need this in reverse order instead!!! So I midified the original code for our implementation
+	size_t n = argOpds.size();
+	size_t index = n;
+	//Iterate though all our arguments in reverse order (from reverse beginning to reverse ending) instead or regular
+    for (auto it = argOpds.rbegin(); it != argOpds.rend(); ++it){
+        Quad * argQuad = new SetArgQuad(index, it->first, it->second);
+        proc->addQuad(argQuad);
+		index = index - 1;
 	}
 }
 
