@@ -75,7 +75,7 @@ public:
 
 		const TypeList *formals = fnType->getFormalTypes();
 		if (!formals) return 0;
-		return formals->getSize();
+		return formals->count();
 	}
 };
 
