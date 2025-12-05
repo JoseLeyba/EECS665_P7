@@ -284,7 +284,18 @@ void AssignQuad::codegenX64(std::ostream& out){
 }
 
 void ReadQuad::codegenX64(std::ostream& out){
-	TODO(Implement me)
+	if (BasicType::INT() == myDstType){
+		out << "callq getInt\n";
+		myDst->genStoreVal(out, A);
+
+	} else if (BasicType::BOOL() == myDstType){
+		out << "callq getBool\n";
+		myDst->genStoreVal(out, A);
+	
+	// strings aren't in the runtime for read
+	} else {
+		out << "# ReadQuad: unsupported type\n";
+	}
 }
 
 //FIRST THING WE NEED TO GET WORKING!

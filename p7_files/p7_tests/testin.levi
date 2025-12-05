@@ -1,0 +1,10 @@
+main : () int {
+    a : int;
+    b : bool;
+
+    in >> a;
+    in >> b;
+
+    out << a;
+    out << b;
+}
