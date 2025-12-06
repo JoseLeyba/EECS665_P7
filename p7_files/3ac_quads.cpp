@@ -219,8 +219,9 @@ std::string SetArgQuad::repr(){
 	return res;
 }
 
-GetArgQuad::GetArgQuad(size_t indexIn, Opd * opdIn)
-: index(indexIn), opd(opdIn){
+//We need procedire to get the arg number for alignment
+GetArgQuad::GetArgQuad(size_t indexIn, Opd * opdIn, Procedure * procIn)
+: index(indexIn), opd(opdIn), myProc(procIn){
 }
 
 std::string GetArgQuad::repr(){

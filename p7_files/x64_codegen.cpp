@@ -332,13 +332,25 @@ void NopQuad::codegenX64(std::ostream& out){
 }
 
 void CallQuad::codegenX64(std::ostream& out){
-	out << "callq fun_" << sym->getName() << "\n";
+	
 
 	int paramCount = sym->getParamCount();
 	int numStackArgs = (paramCount > 6) ? paramCount - 6 : 0;
+	//Need to align with odd args
+	bool alignment_needed = (numStackArgs % 2 == 1);
+
+	if (alignment_needed){
+		out << "subq $8, %rsp\n";
+	}
+
+	out << "callq fun_" << sym->getName() << "\n";
 
 	if (numStackArgs > 0){
 	 	long bytes = 8L * numStackArgs;
+		//For alignment when needed
+		if (alignment_needed){
+			bytes += 8;
+		}
 	 	out << "addq $" << bytes << ", %rsp\n";
 	}
 
@@ -391,40 +403,49 @@ void SetArgQuad::codegenX64(std::ostream& out){
 }
 
 void GetArgQuad::codegenX64(std::ostream& out){
+	//Need to cehck for possible alignment of stack
+	size_t numFormals = myProc->getFormals().size();
+	int numStackArgs = (numFormals > 6) ? numFormals - 6 : 0;
+	bool alignment_done = (numStackArgs % 2 == 1);
 	Register r;
-	switch (index){
-		case 1: 
-			r = DI;
-			opd->genStoreVal(out, r);
-			break;
-		case 2:
-			r = SI;
-			opd->genStoreVal(out, r);
-			break;
-		case 3:
-			r = D;
-			opd->genStoreVal(out, r);
-			break;
-		case 4: 
-			r = C;
-			opd->genStoreVal(out, r);
-			break;
-		case 5:
-		//We don't have the registers r08 and r09 in our Register class so I'm doing it manually to comply with System V ABI
-			out << "movq %r8, " << RegUtils::reg64(A) << "\n";
-			opd->genStoreVal(out, A);
-			break;
-		case 6: 
-			out << "movq %r9, " << RegUtils::reg64(A) << "\n";
-			opd->genStoreVal(out, A);
-			break;
+	//For less than 6 arguments
+	if (index <= 6){
+		switch (index){
+			case 1: 
+				r = DI;
+				opd->genStoreVal(out, r);
+				break;
+			case 2:
+				r = SI;
+				opd->genStoreVal(out, r);
+				break;
+			case 3:
+				r = D;
+				opd->genStoreVal(out, r);
+				break;
+			case 4: 
+				r = C;
+				opd->genStoreVal(out, r);
+				break;
+			case 5:
+			//We don't have the registers r08 and r09 in our Register class so I'm doing it manually to comply with System V ABI
+				out << "movq %r8, " << RegUtils::reg64(A) << "\n";
+				opd->genStoreVal(out, A);
+				break;
+			case 6: 
+				out << "movq %r9, " << RegUtils::reg64(A) << "\n";
+				opd->genStoreVal(out, A);
+				break;
+			return;
+		}
 		
-		//Anything after 6 goes in the stack (positive offset with how we working on it)
-		default:
-			long offset = 16 + 8 * static_cast<long>(index - 7);
-			out << "movq " << offset << "(%rbp), " << RegUtils::reg64(A) << "\n";
-			opd->genStoreVal(out, A);
-			break;
+		//Anything after 6 goes in the stack (positive offset with how we working on it) (also now we check for the alignment)
+		//Depending if even or odd we start on 24 (when odd) or 16 (when even) for alignment
+		long baseOffset = alignment_done ? 24 : 16;
+		long offset = baseOffset + 8 * static_cast<long>(index - 7);
+		out << "movq " << offset << "(%rbp), " << RegUtils::reg64(A) << "\n";
+		opd->genStoreVal(out, A);
+
 	}
 	
 }

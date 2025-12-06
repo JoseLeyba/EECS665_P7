@@ -455,14 +455,16 @@ private:
 };
 
 class GetArgQuad : public Quad{
+//For alignment we need to know our proceure to know thew args number
 public:
-	GetArgQuad(size_t indexIn, Opd * opdIn);
+	GetArgQuad(size_t indexIn, Opd * opdIn, Procedure * procIn);
 	std::string repr() override;
 	void codegenX64(std::ostream& out) override;
 	Opd * getDst(){ return opd; }
 private:
 	size_t index;
 	Opd * opd;
+	Procedure * myProc;
 };
 
 class SetRetQuad : public Quad{
